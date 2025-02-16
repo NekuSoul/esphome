@@ -19,10 +19,19 @@ void WakeOnLanButton::set_macaddr(uint8_t a, uint8_t b, uint8_t c, uint8_t d, ui
   macaddr_[5] = f;
 }
 
+void WakeOnLanButton::set_ipaddr(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
+  ipaddr_[0] = a;
+  ipaddr_[1] = b;
+  ipaddr_[2] = c;
+  ipaddr_[3] = d;
+}
+
 void WakeOnLanButton::dump_config() {
   LOG_BUTTON("", "Wake-on-LAN Button", this);
   ESP_LOGCONFIG(TAG, "  Target MAC address: %02X:%02X:%02X:%02X:%02X:%02X", this->macaddr_[0], this->macaddr_[1],
                 this->macaddr_[2], this->macaddr_[3], this->macaddr_[4], this->macaddr_[5]);
+  ESP_LOGCONFIG(TAG, "  Target IP address: %02X.%02X.%02X.%02X", this->ipaddr_[0], this->ipaddr_[1], this->ipaddr_[2],
+                this->ipaddr_[3]);
 }
 
 void WakeOnLanButton::press_action() {
@@ -44,10 +53,10 @@ void WakeOnLanButton::press_action() {
                                       addr_len) <= 0)
     ESP_LOGW(TAG, "sendto() error %d", errno);
 #else
-  IPAddress broadcast = IPAddress(255, 255, 255, 255);
+  IPAddress broadcast = IPAddress(ipaddr_[0], ipaddr_[1], ipaddr_[2], ipaddr_[3]);
   for (auto ip : esphome::network::get_ip_addresses()) {
     if (ip.is_ip4()) {
-      if (this->udp_client_.beginPacketMulticast(broadcast, 9, ip, 128) != 0) {
+      if (this->udp_client_.beginPacket(broadcast, 9) != 0) {
         this->udp_client_.write(PREFIX, 6);
         for (size_t i = 0; i < 16; i++) {
           this->udp_client_.write(macaddr_, 6);

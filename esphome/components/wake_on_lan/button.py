@@ -14,6 +14,7 @@ def AUTO_LOAD():
 
 
 CONF_TARGET_MAC_ADDRESS = "target_mac_address"
+CONF_TARGET_IP_ADDRESS = "target_ip_address"
 
 wake_on_lan_ns = cg.esphome_ns.namespace("wake_on_lan")
 
@@ -25,6 +26,7 @@ CONFIG_SCHEMA = (
     .extend(
         {
             cv.Required(CONF_TARGET_MAC_ADDRESS): cv.mac_address,
+            cv.Optional(CONF_TARGET_IP_ADDRESS, "255.255.255.255"): cv.ipv4address,
         }
     )
 )
@@ -33,5 +35,6 @@ CONFIG_SCHEMA = (
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     cg.add(var.set_macaddr(*config[CONF_TARGET_MAC_ADDRESS].parts))
+    cg.add(var.set_ipaddr(*config[CONF_TARGET_IP_ADDRESS].parts))
     await cg.register_component(var, config)
     await button.register_button(var, config)

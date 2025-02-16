@@ -15,6 +15,7 @@ namespace wake_on_lan {
 class WakeOnLanButton : public button::Button, public Component {
  public:
   void set_macaddr(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e, uint8_t f);
+  void set_ipaddr(uint8_t a, uint8_t b, uint8_t c, uint8_t d);
 
   void dump_config() override;
   void setup() override;
@@ -29,6 +30,7 @@ class WakeOnLanButton : public button::Button, public Component {
   void press_action() override;
   uint16_t port_{9};
   uint8_t macaddr_[6];
+  uint8_t ipaddr_[4];
 };
 
 }  // namespace wake_on_lan
